@@ -61,15 +61,18 @@ public class PlayerMovement : MonoBehaviour
         horizontalMovement = Input.GetAxis("Horizontal");
 
         if(wallJumpTimer <= 0)
+        {
             rBody.velocity = new Vector2(horizontalMovement * movementSpeed, rBody.velocity.y);
 
-        if (horizontalMovement > 0.01f)
-            transform.localScale = Vector3.one;
-        else if (horizontalMovement < -0.01f)
-            transform.localScale = new Vector3(-1, 1, 1);
+            if (horizontalMovement > 0.01f)
+                transform.localScale = Vector3.one;
+            else if (horizontalMovement < -0.01f)
+                transform.localScale = new Vector3(-1, 1, 1);
+        }
+            
         
 
-        if (CheckOnWall())
+        if (CheckOnWall() && !CheckGrounded() && rBody.velocity.y < 0.01f)
         {
             rBody.gravityScale = wallHangGravityScale;
         }
@@ -93,19 +96,19 @@ public class PlayerMovement : MonoBehaviour
 
     private void Jump()
     {
-        if(CheckGrounded())
-            rBody.velocity = new Vector2(rBody.velocity.x, jumpHeight);
-
         if (CheckOnWall() && wallJumpTimer <= 0 && !CheckGrounded())
         {
             if (horizontalMovement != 0)
-                rBody.velocity =new Vector2(-Mathf.Sign(transform.localScale.x) * wallJumpHorizontalForce, wallJumpVerticalForce);
+                rBody.velocity = new Vector2(-Mathf.Sign(transform.localScale.x) * wallJumpHorizontalForce, wallJumpVerticalForce);
             else
                 rBody.velocity = new Vector2(-Mathf.Sign(transform.localScale.x) * wallJumpHorizontalForce * 2, wallJumpVerticalForce);
 
             wallJumpTimer = wallJumpCooldown;
             transform.localScale = new Vector3(-Mathf.Sign(transform.localScale.x), transform.localScale.y, transform.localScale.z);
-        }   
+        }
+
+        if (CheckGrounded())
+            rBody.velocity = new Vector2(rBody.velocity.x, jumpHeight);
     }
 
     private bool CheckGrounded()
@@ -158,6 +161,11 @@ public class PlayerMovement : MonoBehaviour
             animator.SetBool("Falling", true);
         else
             animator.SetBool("Falling", false);
+
+        if (CheckOnWall())
+            animator.SetBool("OnWall", true);
+        else
+            animator.SetBool("OnWall", false);
     }
 
     private void MoveCamera()

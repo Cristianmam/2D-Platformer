@@ -868,7 +868,7 @@ BoxCollider2D:
   m_IsTrigger: 0
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: -0.062120676, y: 0.69109225}
+  m_Offset: {x: -0.062120676, y: 0.70135665}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0}
@@ -879,7 +879,7 @@ BoxCollider2D:
     adaptiveTiling: 0
   m_AutoTiling: 0
   serializedVersion: 2
-  m_Size: {x: 0.87575865, y: 1.2795432}
+  m_Size: {x: 0.87575865, y: 1.2590144}
   m_EdgeRadius: 0
 --- !u!212 &918145617
 SpriteRenderer:
@@ -921,8 +921,8 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 1
-  m_Sprite: {fileID: 21300000, guid: 8cb436ab79c17bd4f9052ec8c185ea75, type: 3}
+  m_SortingOrder: 3
+  m_Sprite: {fileID: 21300000, guid: ae297123f091bbf4e8f1835eb98fb293, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -951,7 +951,7 @@ MonoBehaviour:
   wallJumpHorizontalForce: 10
   wallJumpVerticalForce: 10
   baseGravityScale: 5
-  wallHangGravityScale: 1
+  wallHangGravityScale: 0.5
   groundLayer:
     serializedVersion: 2
     m_Bits: 128
@@ -1210,7 +1210,7 @@ BoxCollider2D:
   m_IsTrigger: 0
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: -11.496527, y: 4.9378433}
+  m_Offset: {x: -11.545296, y: 4.9378433}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0, y: 0}
@@ -1221,7 +1221,7 @@ BoxCollider2D:
     adaptiveTiling: 0
   m_AutoTiling: 0
   serializedVersion: 2
-  m_Size: {x: 1.0069466, y: 10.875687}
+  m_Size: {x: 0.90940857, y: 10.875687}
   m_EdgeRadius: 0
 --- !u!4 &1150108268
 Transform:
