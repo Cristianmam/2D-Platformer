@@ -10,15 +10,21 @@ public class HorizontalParallax : MonoBehaviour
     private float length;
     private float startPos;
 
-    void Awake()
+    private bool initialized = false;
+
+    public void InitializeHorParallax(Camera camera)
     {
-        cam = Camera.main;
+        cam = camera;
         startPos = transform.position.x;
         length = GetComponent<SpriteRenderer>().bounds.size.x;
+        initialized = true;
     }
 
     void FixedUpdate()
     {
+        if (!initialized)
+            return;
+
         float _temp = cam.transform.position.x * (1 - parallaxEffect);
         float _dist = cam.transform.position.x * parallaxEffect;
 

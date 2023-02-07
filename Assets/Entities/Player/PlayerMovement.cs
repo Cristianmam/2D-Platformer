@@ -32,32 +32,30 @@ public class PlayerMovement : MonoBehaviour
 
     private Animator animator;
 
-    [Header("Camera positions")]
-    [SerializeField]
-    private float lookTimer;
-    private float timeLooking;
-    [SerializeField]
-    private GameObject forwardCameraAnchor;
-    [SerializeField]
-    private GameObject backwardCameraAnchor;
-    [SerializeField]
-    private GameObject topCameraAnchor;
-    [SerializeField]
-    private GameObject bottomCameraAnchor;
+    private GameController gameController;
 
-    private CameraControl mainCameraControl;
+    private PlayerManager playerManager;
+
 
     private void Awake()
     {
         rBody = GetComponent<Rigidbody2D>();
         bCol = GetComponent<BoxCollider2D>();
-        animator = GetComponent<Animator>();
+    }
 
-        mainCameraControl = Camera.main.GetComponent<CameraControl>();
+    public void InitializeMovement(PlayerManager pm, GameController gc, Animator anim)
+    {
+        gameController = gc;
+        animator = anim;
+        playerManager = pm;
     }
 
     private void Update()
     {
+        //Check if we are allowed to move
+        if (!gameController.gameplayActive || !playerManager.takingInputs)
+            return;
+
         horizontalMovement = Input.GetAxis("Horizontal");
 
         if(wallJumpTimer <= 0)
@@ -85,8 +83,6 @@ public class PlayerMovement : MonoBehaviour
         {
             Jump();
         }
-
-        MoveCamera();
 
         NotifyAnimator();
 
@@ -166,43 +162,6 @@ public class PlayerMovement : MonoBehaviour
             animator.SetBool("OnWall", true);
         else
             animator.SetBool("OnWall", false);
-    }
-
-    private void MoveCamera()
-    {
-        float verticalMovement = Input.GetAxis("Vertical");
-
-        if (CheckOnWall())
-        {
-            timeLooking = 0;
-            mainCameraControl.LerpLookAt(backwardCameraAnchor.transform.position);
-            return;
-        }
-
-        if (rBody.velocity.magnitude > 0.1f)
-        {
-            timeLooking = 0;
-            mainCameraControl.LerpLookAt(forwardCameraAnchor.transform.position);
-            return;
-        }
-
-        if(verticalMovement == 0)
-        {
-            timeLooking = 0;
-            mainCameraControl.LerpLookAt(forwardCameraAnchor.transform.position);
-            return;
-        }
-
-
-        if (timeLooking < lookTimer)
-            timeLooking += Time.deltaTime;
-        else
-        {
-            if (verticalMovement > 0)
-                mainCameraControl.LerpLookAt(topCameraAnchor.transform.position);
-            else
-                mainCameraControl.LerpLookAt(bottomCameraAnchor.transform.position);
-        }
     }
 
     private void AdvanceTimers()

@@ -4,9 +4,6 @@ using UnityEngine;
 
 public class BackgroundPushing : MonoBehaviour
 {
-    //We want to ask the dev if we are pushing up or down, once we do, the sprite will stay static until the camera reaches a certain margin.
-    //Once the margin is reached, it will follow the camera donwards or upwards as required.
-    //It will follow the camera back up (or down) to its original Y location.
     [SerializeField]
     private bool followsUp;
     [SerializeField]
@@ -21,25 +18,24 @@ public class BackgroundPushing : MonoBehaviour
     private float height;
     private float originalY;
 
-    // Start is called before the first frame update
-    void Awake()
+    private bool initialized = false;
+
+    public void InitializeBGPushing(Camera camera)
     {
-        cam = Camera.main;
+        cam = camera;
         height = GetComponent<SpriteRenderer>().bounds.size.y;
         originalY = transform.position.y;
         cameraOriginalY = cam.transform.position.y;
 
+        initialized = true;
     }
 
-    // Update is called once per frame
     void FixedUpdate()
     {
-        //breaks because of movement along with parent, need to make the object not move on the Y axis with parent
-        
-        
+        if (!initialized)
+            return;
 
         float _currentY = transform.position.y;
-
 
         if(!(FollowDown() || FollowUp()))
             transform.position = new Vector2(transform.position.x, originalY);
