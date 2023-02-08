@@ -48,7 +48,6 @@ public class GameController : MonoBehaviour
 
         //Place the PC around
 
-        //Seems to fail to actually follow the player
         cameraControl.InitializeCamera(this, playerCharacter);
         if (currentLevel.movingBackground)
             cameraControl.AssociateBackground(currentLevel.movingBackground);

@@ -38,15 +38,13 @@ public class CameraControl : MonoBehaviour
     private float cameraMarginTop;
     private float cameraMarginBottom;
 
-    private bool initialized = false;
-
     public void InitializeCamera(GameController gc, PlayerManager player)
     {
         gameController = gc;
 
         playerCharacter = player;
 
-        mainCamera = this.gameObject.GetComponent<Camera>();
+        mainCamera = GetComponent<Camera>();
 
         cameraHalfHeight = mainCamera.orthographicSize;
         cameraHalfWidth = mainCamera.orthographicSize * mainCamera.aspect;
@@ -61,8 +59,6 @@ public class CameraControl : MonoBehaviour
 
         if (behavior == CameraBehavior.FollowingPlayer)
         {
-            //Logic to clamp the camera to the edges
-            //Check if horizontal input has been held?
             float x = Mathf.Clamp(playerCharacter.transform.position.x, cameraMarginLeft, cameraMarginRight);
             float y = Mathf.Clamp(playerCharacter.transform.position.y, cameraMarginBottom, cameraMarginTop);
             transform.position = new Vector3(x,y,transform.position.z);
@@ -110,6 +106,12 @@ public class CameraControl : MonoBehaviour
         }   
     }
 
+
+    /// <summary>
+    /// Defines the boundaries of the camera. It will show no point outside of these boundaries
+    /// </summary>
+    /// <param name="lowerLeftCorner">The lower, leftmost point the camera can show</param>
+    /// <param name="upperRightCorner">The upper, rightmost point the camera can show</param>
     public void SetBoundaries(Vector3 lowerLeftCorner, Vector3 upperRightCorner)
     {
         upperRightBoundary = upperRightCorner;
@@ -121,24 +123,53 @@ public class CameraControl : MonoBehaviour
         cameraMarginBottom = lowerLeftBoundary.y + cameraHalfHeight;
     }
 
+    /// <summary>
+    /// Makes the camera start following the player. If not over the player it will to it.
+    /// </summary>
     public void FollowPlayer()
     {
         behavior = CameraBehavior.FollowingPlayer;
     }
+
+    /// <summary>
+    /// Moves the camera to the player with a Lerp. Meant to be used while the player cannot move, i.e: during a cutscene after showing something to the player.
+    /// </summary>
+    /// <param name="travelTime">How long the camera should take to reach the player</param>
     public void TravelToPlayer(float travelTime)
     {
         behavior = CameraBehavior.ReturningToPlayer;
         cameraTravelTime = Mathf.Clamp(travelTime, 0.1f, 100);
         timePassed = 0;
         lerpStartPoint = transform.position;
-        focusPoint = ConvertVector3(playerCharacter.transform.position);
+
+        Vector3 playerPos = ConvertVector3(playerCharacter.transform.position);
+
+        float x = playerPos.x;
+        float y = playerPos.y;
+        float z = playerPos.z;
+
+        x = Mathf.Clamp(x, cameraMarginLeft, cameraMarginRight);
+        y = Mathf.Clamp(y, cameraMarginBottom, cameraMarginTop);
+
+        Vector3 clampedPos = new Vector3(x, y, z);
+
+        focusPoint = clampedPos;
     }
+
+    /// <summary>
+    /// Snaps the camera to the player position. Meant to be used while the player is unable to see the scene.
+    /// </summary>
     public void SnapToPlayer()
     {
         behavior = CameraBehavior.FollowingPlayer;
         transform.position = ConvertVector3(playerCharacter.transform.position);
     }
 
+    /// <summary>
+    /// Moves the camera to a position using a Lerp.
+    /// </summary>
+    /// <param name="point">Where the camera should go</param>
+    /// <param name="travelTime">How long the camera should take to reach the point</param>
     public void TravelToPoint(Vector3 point, float travelTime)
     {
         behavior = CameraBehavior.Moving;
@@ -148,6 +179,10 @@ public class CameraControl : MonoBehaviour
         focusPoint = ConvertVector3(point);
     }
 
+    /// <summary>
+    /// Snaps the camera to the point instantly
+    /// </summary>
+    /// <param name="point">Where the camera should snap to</param>
     public void SnapToPoint(Vector3 point)
     {
         behavior = CameraBehavior.Static;

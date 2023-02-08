@@ -138,7 +138,8 @@ GameObject:
   - component: {fileID: 918145616}
   - component: {fileID: 918145620}
   - component: {fileID: 918145618}
-  m_Layer: 0
+  - component: {fileID: 918145621}
+  m_Layer: 6
   m_Name: Player
   m_TagString: Player
   m_Icon: {fileID: 0}
@@ -160,8 +161,8 @@ Rigidbody2D:
   m_Mass: 1
   m_LinearDrag: 0
   m_AngularDrag: 0.05
-  m_GravityScale: 5
-  m_Material: {fileID: 0}
+  m_GravityScale: 3
+  m_Material: {fileID: 6200000, guid: 67b5f578334a3a54fb435abbecd6560f, type: 2}
   m_IncludeLayers:
     serializedVersion: 2
     m_Bits: 0
@@ -272,7 +273,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 3
+  m_SortingOrder: 15
   m_Sprite: {fileID: 21300000, guid: ae297123f091bbf4e8f1835eb98fb293, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
@@ -296,19 +297,23 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 16064cff9418f9748b04112b98f7ba5e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  movementSpeed: 10
-  jumpHeight: 20
+  movementSpeed: 7
+  jumpHeight: 15
   wallJumpCooldown: 0.5
   wallJumpHorizontalForce: 10
   wallJumpVerticalForce: 10
-  baseGravityScale: 5
-  wallHangGravityScale: 0.5
+  baseGravityScale: 3
+  wallHangGravityScale: 0.25
+  horizontalMovement: 0
+  verticalMovement: 0
   groundLayer:
     serializedVersion: 2
     m_Bits: 128
   wallLayer:
     serializedVersion: 2
     m_Bits: 256
+  slipMaterial: {fileID: 6200000, guid: 2e3d53c3f2706a248ab00a9befb2d411, type: 2}
+  gripMaterial: {fileID: 6200000, guid: 67b5f578334a3a54fb435abbecd6560f, type: 2}
 --- !u!95 &918145619
 Animator:
   serializedVersion: 5
@@ -341,3 +346,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9fd57b69ffa3b1d408e26b9881429ec7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &918145621
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 918145613}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 80e9e1b3fe65e1c4fb05ab92e28364f0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  maxHealth: 3
+  currentHealth: 0
+  invulnerabilityTime: 2
+  flashInterval: 0.5
+  flashColor: {r: 0.38679248, g: 0.38679248, b: 0.38679248, a: 0}
