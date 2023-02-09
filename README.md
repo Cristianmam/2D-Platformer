@@ -2,7 +2,9 @@
 2D Platformer made to expand and showcase Unity and C# knowledge.
 
 Features:
+
   Done:
+  
     -Structure:
       -Persistent logic separated from levels
       
@@ -19,6 +21,7 @@ Features:
         -Moving
       
   To do:
+  
     -Player character:
       -Death & respawning
       -Upgrades
