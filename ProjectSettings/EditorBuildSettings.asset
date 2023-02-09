@@ -6,13 +6,13 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/Scenes/GameControllerScene.unity
+    path: Assets/Scenes/General Scenes/GameControllerScene.unity
     guid: 1c07f59967737e4439a09320f66a5e6b
   - enabled: 1
-    path: Assets/Scenes/PlayerScene.unity
+    path: Assets/Scenes/General Scenes/PlayerScene.unity
     guid: 466b75047baee7947b233a12904de523
   - enabled: 1
-    path: Assets/Scenes/CameraScene.unity
+    path: Assets/Scenes/General Scenes/CameraScene.unity
     guid: f51a025800db7c44f924591326319e26
   - enabled: 1
     path: Assets/Scenes/Levels/SampleScene.unity

@@ -17,11 +17,11 @@ public class LevelManager : MonoBehaviour
     [SerializeField]
     private GameObject spawnPointGO;
     [SerializeField]
-    private List<GameObject> entryPointsGO;
+    private List<GameObject> entryPointsGo;
 
     public Vector3 spawnPoint { get; private set; }
     //This could be replaced with a struct
-    public List<Vector3> entryPoints { get; private set; }
+    public List<EntryPoint> entryPoints { get; private set; }
 
     public bool hasSpawnPoint { get; private set; }
 
@@ -44,13 +44,15 @@ public class LevelManager : MonoBehaviour
             hasSpawnPoint = false;
             
 
-        entryPoints = new List<Vector3>();
-        foreach(GameObject go in entryPointsGO)
+        entryPoints = new List<EntryPoint>();
+        foreach(GameObject go in entryPointsGo)
         {
-            float x = go.transform.position.x;
-            float y = go.transform.position.y;
-            if (x >= levelLowerLeftCorner.x && x <= levelUpperRightCorner.x && y >= levelLowerLeftCorner.y && y <= levelUpperRightCorner.y)
-                entryPoints.Add(go.transform.position);
+            EntryPoint ep = go.GetComponent<EntryPoint>();
+
+            if (ep != null)
+            {
+                entryPoints.Add(ep);
+            }
         }
     }
 }

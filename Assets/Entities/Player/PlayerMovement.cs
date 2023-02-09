@@ -19,8 +19,10 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField]
     private float wallHangGravityScale = 0.25f;
 
-    public float horizontalMovement;
-    public float verticalMovement;
+    private bool launched;
+
+    private float horizontalMovement;
+    private float verticalMovement;
 
     private bool isGrounded;
     private bool isOnWall;
@@ -39,6 +41,13 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField]
     private PhysicsMaterial2D gripMaterial;
 
+    [Header("Combat")]
+    [SerializeField]
+    private float knockBackForce = 750;
+    [SerializeField]
+    private float stunDuration = 0.5f;
+    private float stunTimer = 0;
+    private bool knockedBack = false;
 
     private Animator animator;
 
@@ -70,27 +79,25 @@ public class PlayerMovement : MonoBehaviour
         verticalMovement = Input.GetAxis("Vertical");
 
         //We can check for things that should stop the player from altering the movement, like immediately after jumping off a wall
-        if(wallJumpTimer <= 0)
+        if(wallJumpTimer <= 0 && stunTimer <= 0)
         {
             rBody.velocity = CalculatePlayerVelocity();
 
-            if (horizontalMovement > 0.01f)
-                transform.localScale = new Vector3(Mathf.Abs(transform.localScale.x), transform.localScale.y,transform.localScale.z);
-            else if (horizontalMovement < -0.01f)
-                transform.localScale = new Vector3(-Mathf.Abs(transform.localScale.x), transform.localScale.y, transform.localScale.z);
+            if (knockedBack && horizontalMovement < -0.01f && horizontalMovement > 0.01f || isGrounded)
+                knockedBack = false;
+            
+            if(!knockedBack)
+                if (rBody.velocity.x > 0.01f)
+                    transform.localScale = new Vector3(Mathf.Abs(transform.localScale.x), transform.localScale.y,transform.localScale.z);
+                else if (rBody.velocity.x < -0.01f)
+                    transform.localScale = new Vector3(-Mathf.Abs(transform.localScale.x), transform.localScale.y, transform.localScale.z);
         }
+  
 
-        
-        if(verticalMovement < -0.01f)
-        {
-            if(!isOnWall && !isGrounded)
-                rBody.velocity = new Vector2(0, rBody.velocity.y);
-        }
-
-        if (isOnWall)
-            rBody.sharedMaterial = slipMaterial;
-        else
+        if (isGrounded)
             rBody.sharedMaterial = gripMaterial;
+        else
+            rBody.sharedMaterial = slipMaterial;
 
         //Wall hanging
         if (isOnWall && !isGrounded && rBody.velocity.y < 0.01f)
@@ -122,6 +129,29 @@ public class PlayerMovement : MonoBehaviour
 
         if (wallJumpTimer > 0)
             wallJumpTimer -= Time.deltaTime;
+
+        if (stunTimer > 0)
+            stunTimer -= Time.deltaTime;
+    }
+
+    public void KnockPlayerBack(Vector3 knockBackOrigin)
+    {
+        if (knockedBack)
+            return;
+
+        stunTimer = stunDuration;
+        knockedBack = true;
+
+        Vector2 playerCenter = new Vector2(transform.position.x, transform.position.y + bCol.size.y / 2);
+        Vector2 origin = new Vector2(knockBackOrigin.x, knockBackOrigin.y);
+
+        Vector2 resultant = playerCenter - origin;
+
+        resultant = resultant.normalized;
+
+        resultant = resultant * knockBackForce;
+
+        rBody.AddForce(resultant);
     }
 
 
@@ -134,6 +164,8 @@ public class PlayerMovement : MonoBehaviour
 
             wallJumpTimer = wallJumpCooldown;
             transform.localScale = new Vector3(-Mathf.Sign(transform.localScale.x), transform.localScale.y, transform.localScale.z);
+
+            launched = true;
         }
 
         if (isGrounded)
@@ -202,14 +234,16 @@ public class PlayerMovement : MonoBehaviour
         Vector2 finalVelocity;
 
         //Allows the player to keep momentum while airborne, like when jumping off a wall
-        if (!isGrounded)
+        if (!isGrounded && launched)
         {
             //If we move in the same direction of the jump, keep the momentum, otherwise kill it
-            if(Mathf.Sign(rBody.velocity.x) == Mathf.Sign(horizontalMovement) || horizontalMovement > -0.01f && horizontalMovement < 0.01f)
+            if (Mathf.Sign(rBody.velocity.x) == Mathf.Sign(horizontalMovement) || horizontalMovement > -0.01f && horizontalMovement < 0.01f)
             {
                 finalVelocity = new Vector2(Mathf.Clamp(rBody.velocity.x + horizontalMovement * movementSpeed, -movementSpeed, movementSpeed), rBody.velocity.y);
                 return finalVelocity;
             }
+            else
+                launched = false;
         }
 
         finalVelocity = new Vector2(horizontalMovement * movementSpeed, rBody.velocity.y);

@@ -28,12 +28,19 @@ public class PlayerManager : MonoBehaviour
 
     public void TakeDamage(Vector3 triggerOrigin, int damage)
     {
+        if (health.status == PlayerHealth.HealthStatus.IgnoreDamage || health.status == PlayerHealth.HealthStatus.Invulnerable)
+            return;
+
         TakeDamage(damage);
-        //push the player back based on the collision point
+        movement.KnockPlayerBack(triggerOrigin);
     }
 
     public void TakeDamage(int damage)
     {
-        health.TakeDamage(damage);
+        if (health.status == PlayerHealth.HealthStatus.IgnoreDamage || health.status == PlayerHealth.HealthStatus.Invulnerable)
+            return;
+
+        if (damage != 0)
+            health.TakeDamage(damage);
     }
 }
