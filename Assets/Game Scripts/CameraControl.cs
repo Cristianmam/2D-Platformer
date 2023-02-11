@@ -20,7 +20,7 @@ public class CameraControl : MonoBehaviour
         ReturningToPlayer = 3
     }
 
-    public CameraBehavior behavior; //{ get; private set; }
+    public CameraBehavior behavior{ get; private set; }
 
     private Vector3 upperRightBoundary;
     private Vector3 lowerLeftBoundary;
@@ -38,6 +38,10 @@ public class CameraControl : MonoBehaviour
     private float cameraMarginTop;
     private float cameraMarginBottom;
 
+    [SerializeField]
+    private float damping = 0.1f;
+    private Vector3 camVelocity;
+
     public void InitializeCamera(GameController gc, PlayerManager player)
     {
         gameController = gc;
@@ -52,7 +56,7 @@ public class CameraControl : MonoBehaviour
         behavior = CameraBehavior.Static;
     }
 
-    private void Update()
+    private void LateUpdate()
     {
         if (behavior == CameraBehavior.Static)
             return;
@@ -61,7 +65,7 @@ public class CameraControl : MonoBehaviour
         {
             float x = Mathf.Clamp(playerCharacter.transform.position.x, cameraMarginLeft, cameraMarginRight);
             float y = Mathf.Clamp(playerCharacter.transform.position.y, cameraMarginBottom, cameraMarginTop);
-            transform.position = new Vector3(x,y,transform.position.z);
+            transform.position = Vector3.SmoothDamp(transform.position,new Vector3(x,y,transform.position.z),ref camVelocity,damping);
         }
 
         if(behavior == CameraBehavior.ReturningToPlayer)
@@ -70,7 +74,6 @@ public class CameraControl : MonoBehaviour
 
             float x = lerpVector.x;
             float y = lerpVector.y;
-            float z = lerpVector.z;
 
             x = Mathf.Clamp(x, cameraMarginLeft, cameraMarginRight);
             y = Mathf.Clamp(y, cameraMarginBottom, cameraMarginTop);
@@ -124,7 +127,7 @@ public class CameraControl : MonoBehaviour
     }
 
     /// <summary>
-    /// Makes the camera start following the player. If not over the player it will to it.
+    /// Makes the camera start following the player.
     /// </summary>
     public void FollowPlayer()
     {
@@ -162,7 +165,9 @@ public class CameraControl : MonoBehaviour
     public void SnapToPlayer()
     {
         behavior = CameraBehavior.FollowingPlayer;
-        transform.position = ConvertVector3(playerCharacter.transform.position);
+        float x = Mathf.Clamp(playerCharacter.transform.position.x, cameraMarginLeft, cameraMarginRight);
+        float y = Mathf.Clamp(playerCharacter.transform.position.y, cameraMarginBottom, cameraMarginTop);
+        transform.position = new Vector3(x,y,transform.position.z);
     }
 
     /// <summary>

@@ -8,6 +8,8 @@ TagManager:
   - Wall
   - Trap
   - Enemy
+  - OneWayPlatform
+  - ShootableSwitch
   layers:
   - Default
   - TransparentFX
@@ -20,7 +22,7 @@ TagManager:
   - Wall Layer
   - Trap
   - Enemy
-  - 
+  - One Way Platform
   - 
   - 
   - 

@@ -14,6 +14,15 @@ public class GameController : MonoBehaviour
     public Camera mainCamera { get; private set; }
     public CameraControl cameraControl { get; private set; }
 
+    [SerializeField]
+    public LayerMask playerLayer;
+    [SerializeField]
+    public LayerMask wallLayer;
+    [SerializeField]
+    public LayerMask groundLayer;
+    [SerializeField]
+    public LayerMask oneWayPlatformLayer;
+
     //Add UI references
 
 

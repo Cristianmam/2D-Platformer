@@ -6,6 +6,10 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField]
     private float movementSpeed = 7;
     [SerializeField]
+    private float maxStepUp = 0.25f;
+    [SerializeField]
+    private float stepSmooth = 0.1f;
+    [SerializeField]
     private float jumpHeight = 15;
     [SerializeField]
     private float wallJumpCooldown = 0.5f;
@@ -21,25 +25,26 @@ public class PlayerMovement : MonoBehaviour
 
     private bool launched;
 
-    private float horizontalMovement;
+    public float horizontalMovement;
     private float verticalMovement;
 
     private bool isGrounded;
     private bool isOnWall;
 
-    private Rigidbody2D rBody;
-    private BoxCollider2D bCol;
+    public Rigidbody2D rBody { get; private set; }
+    public BoxCollider2D bCol { get; private set; }
+
+
 
     [Header("Collisions")]
-    [SerializeField]
-    private LayerMask groundLayer;
-    [SerializeField]
-    private LayerMask wallLayer;
-
     [SerializeField]
     private PhysicsMaterial2D slipMaterial;
     [SerializeField]
     private PhysicsMaterial2D gripMaterial;
+
+    private LayerMask groundLayer;
+    private LayerMask wallLayer;
+    private LayerMask oneWayPlatformLayer;
 
     [Header("Combat")]
     [SerializeField]
@@ -55,6 +60,8 @@ public class PlayerMovement : MonoBehaviour
 
     private PlayerManager playerManager;
 
+    public bool lowerHit;
+    public bool upperHit;
 
     public void InitializeMovement(PlayerManager pm, GameController gc, Animator anim)
     {
@@ -64,12 +71,16 @@ public class PlayerMovement : MonoBehaviour
 
         rBody = GetComponent<Rigidbody2D>();
         bCol = GetComponent<BoxCollider2D>();
+
+        groundLayer = gameController.groundLayer;
+        wallLayer = gameController.wallLayer;
+        oneWayPlatformLayer = gameController.oneWayPlatformLayer;
     }
 
     private void Update()
     {
         //Check if we are allowed to move
-        if (!gameController.gameplayActive)
+        if (!gameController.gameplayActive || playerManager.playerState != PlayerManager.PlayerStates.Normal)
             return;
 
         isGrounded = CheckGrounded();
@@ -83,7 +94,7 @@ public class PlayerMovement : MonoBehaviour
         {
             rBody.velocity = CalculatePlayerVelocity();
 
-            if (knockedBack && horizontalMovement < -0.01f && horizontalMovement > 0.01f || isGrounded)
+            if (knockedBack && !IsNearZero(horizontalMovement) || isGrounded)
                 knockedBack = false;
             
             if(!knockedBack)
@@ -118,12 +129,13 @@ public class PlayerMovement : MonoBehaviour
             rBody.gravityScale = baseGravityScale;
         }
 
-        if (Input.GetKeyDown(KeyCode.Space))
+        if (Input.GetKeyDown(KeyCode.Space) && !(Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.DownArrow)))
         {
             Jump();
         }
 
-        
+        if (!IsNearZero(horizontalMovement))
+            StepUp();
 
         NotifyAnimator();
 
@@ -168,13 +180,25 @@ public class PlayerMovement : MonoBehaviour
             launched = true;
         }
 
-        if (isGrounded)
+        if (isGrounded && !(CheckOnOneWayPlatform() && Input.GetKeyDown(KeyCode.S) || Input.GetKeyDown(KeyCode.DownArrow)))
             rBody.velocity = new Vector2(rBody.velocity.x, jumpHeight);
     }
 
     private bool CheckGrounded()
     {
-        if (Physics2D.BoxCast(bCol.bounds.center, bCol.bounds.size, 0, Vector2.down, 0.1f, groundLayer))
+        if (Physics2D.BoxCast(bCol.bounds.center, bCol.bounds.size, 0, Vector2.down, 0.1f, groundLayer) || CheckOnOneWayPlatform())
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+
+    private bool CheckOnOneWayPlatform()
+    {
+        if (Physics2D.BoxCast(bCol.bounds.center, bCol.bounds.size, 0, Vector2.down, 0.1f, oneWayPlatformLayer) && IsNearZero(rBody.velocity.y))
         {
             return true;
         }
@@ -198,15 +222,11 @@ public class PlayerMovement : MonoBehaviour
 
     private void NotifyAnimator()
     {
-        if (isGrounded)
-            animator.SetBool("Grounded", true);
-        else
-            animator.SetBool("Grounded", false);
+        animator.SetBool("Grounded", isGrounded);
 
-        if (rBody.velocity.x > -0.01f && rBody.velocity.x < 0.01f)
-            animator.SetBool("Running", false);
-        else
-            animator.SetBool("Running", true);
+        animator.SetBool("Running", !IsNearZero(horizontalMovement));
+
+        animator.SetBool("OnWall", isOnWall);
 
         if (rBody.velocity.y > 0.01f)
             animator.SetBool("Jumping", true);
@@ -222,22 +242,18 @@ public class PlayerMovement : MonoBehaviour
             animator.SetBool("Falling", true);
         else
             animator.SetBool("Falling", false);
-
-        if (isOnWall)
-            animator.SetBool("OnWall", true);
-        else
-            animator.SetBool("OnWall", false);
+     
     }
 
     private Vector2 CalculatePlayerVelocity()
     {
         Vector2 finalVelocity;
 
-        //Allows the player to keep momentum while airborne, like when jumping off a wall
+        //Allows the player to keep momentum when launched, like when jumping off a wall
         if (!isGrounded && launched)
         {
             //If we move in the same direction of the jump, keep the momentum, otherwise kill it
-            if (Mathf.Sign(rBody.velocity.x) == Mathf.Sign(horizontalMovement) || horizontalMovement > -0.01f && horizontalMovement < 0.01f)
+            if (Mathf.Sign(rBody.velocity.x) == Mathf.Sign(horizontalMovement) || IsNearZero(horizontalMovement))
             {
                 finalVelocity = new Vector2(Mathf.Clamp(rBody.velocity.x + horizontalMovement * movementSpeed, -movementSpeed, movementSpeed), rBody.velocity.y);
                 return finalVelocity;
@@ -249,6 +265,35 @@ public class PlayerMovement : MonoBehaviour
         finalVelocity = new Vector2(horizontalMovement * movementSpeed, rBody.velocity.y);
         return finalVelocity;
     }
+
+    private bool IsNearZero(float f)
+    {
+        return IsNearZero(f, 0.01f);
+    }
+
+    private bool IsNearZero(float f, float range)
+    {
+        if (f > -range && f < range)
+            return true;
+        else
+            return false;
+    }
+
+    private void StepUp()
+    {
+        float vectorLength = bCol.bounds.size.x / 2 + 0.03f;
+        Vector2 lowerCastPoint = new Vector2(bCol.bounds.center.x, bCol.bounds.center.y - bCol.bounds.size.y / 2);
+        Vector2 directionVector = new Vector2(Mathf.Sign(horizontalMovement), 0);
+        if (Physics2D.Raycast(lowerCastPoint, directionVector, vectorLength, groundLayer))
+        {
+            Vector2 upperCastPoint = new Vector2(lowerCastPoint.x, lowerCastPoint.y + maxStepUp);
+            if (!Physics2D.Raycast(upperCastPoint, directionVector, vectorLength, groundLayer))
+            {
+                rBody.position -= new Vector2(0, -stepSmooth);
+            }
+        }
+    }
+
 
     private bool MovingInSameDirectionAsWall()
     {

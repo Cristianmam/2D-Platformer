@@ -167,3 +167,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e4deec0650def8848aacab6cdde3ddc8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  playerLayer:
+    serializedVersion: 2
+    m_Bits: 64
+  wallLayer:
+    serializedVersion: 2
+    m_Bits: 256
+  groundLayer:
+    serializedVersion: 2
+    m_Bits: 128
+  oneWayPlatformLayer:
+    serializedVersion: 2
+    m_Bits: 2048
+  projectile: {fileID: 0}
