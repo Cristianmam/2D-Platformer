@@ -25,6 +25,7 @@ public class Projectile : MonoBehaviour
 
     private Animator animator;
 
+
     private void Awake()
     {
         animator = GetComponentInChildren<Animator>();
@@ -50,8 +51,9 @@ public class Projectile : MonoBehaviour
         transform.rotation = Quaternion.Euler(Vector3.zero);
 
         transform.Rotate(new Vector3(0, 0, angle));
+            
 
-        movementDirection = new Vector3(Mathf.Cos(angle), Mathf.Sin(angle));
+        movementDirection = new Vector3(Mathf.Cos(angle * (Mathf.PI/180)), Mathf.Sin(angle * (Mathf.PI / 180)),0);
 
         movementDirection = movementDirection.normalized;
 
@@ -59,10 +61,12 @@ public class Projectile : MonoBehaviour
             gameObject.SetActive(true);
 
         stopped = false;
+        timeSpawned = 0;
     }
 
     public void DeactivateProjectile()
     {
+
         gameObject.SetActive(false);
     }
 
@@ -72,8 +76,12 @@ public class Projectile : MonoBehaviour
         {
             animator.SetTrigger("Hit");
             stopped = true;
+            //Call animator here to play despawn animation and call this function from the last frame
+            DeactivateProjectile();
             return;
         }
+
+        //Check if other projectiles are hit?
             
 
         if (playerProjectile)

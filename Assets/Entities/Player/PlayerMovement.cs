@@ -2,6 +2,8 @@ using UnityEngine;
 
 public class PlayerMovement : MonoBehaviour
 {
+    //TODO move all key references to player manager or a struct referenced there to prepare for key rebinds
+
     [Header("Movement")]
     [SerializeField]
     private float movementSpeed = 7;
@@ -28,8 +30,8 @@ public class PlayerMovement : MonoBehaviour
     public float horizontalMovement;
     private float verticalMovement;
 
-    private bool isGrounded;
-    private bool isOnWall;
+    public bool isGrounded { get; private set; }
+    public bool isOnWall { get; private set; }
 
     public Rigidbody2D rBody { get; private set; }
     public BoxCollider2D bCol { get; private set; }

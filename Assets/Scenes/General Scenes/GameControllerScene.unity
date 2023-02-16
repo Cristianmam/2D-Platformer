@@ -179,4 +179,3 @@ MonoBehaviour:
   oneWayPlatformLayer:
     serializedVersion: 2
     m_Bits: 2048
-  projectile: {fileID: 0}
